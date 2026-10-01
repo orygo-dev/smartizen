@@ -5,7 +5,7 @@ import { api, uploadFile, formatApiError, mediaUrl } from "@/lib/api";
 import { MAX_VIDEO_MB } from "@/lib/content";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { PrivacyPicker } from "@/components/sz/PrivacyPicker";
 import { MusicPicker } from "@/components/sz/MusicPicker";
 import { cn } from "@/lib/utils";
@@ -57,8 +57,8 @@ export function StoryComposer({ open, onOpenChange, onCreated }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto" data-testid="story-composer">
-        <DialogHeader><DialogTitle>Buat Story</DialogTitle></DialogHeader>
+      <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl [&>*]:min-w-0" data-testid="story-composer">
+        <DialogHeader><DialogTitle>Buat Story</DialogTitle><DialogDescription>Story tampil 24 jam sesuai pilihan privasi Anda.</DialogDescription></DialogHeader>
         <Preview media={media} text={text} bg={bg} />
         <div className="flex gap-2">
           <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-200 py-2 text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">

@@ -5,7 +5,7 @@ import { api, uploadFile, formatApiError, mediaUrl } from "@/lib/api";
 import { MAX_VIDEO_MB } from "@/lib/content";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { PrivacyPicker } from "@/components/sz/PrivacyPicker";
 import { MusicPicker } from "@/components/sz/MusicPicker";
 
@@ -41,8 +41,8 @@ export function ReelComposer({ open, onOpenChange, onCreated }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto" data-testid="reel-composer">
-        <DialogHeader><DialogTitle>Unggah Reel</DialogTitle></DialogHeader>
+      <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl [&>*]:min-w-0" data-testid="reel-composer">
+        <DialogHeader><DialogTitle>Unggah Reel</DialogTitle><DialogDescription>Video vertikal singkat untuk warga sekitar.</DialogDescription></DialogHeader>
         <label className="relative grid aspect-[9/14] max-h-72 w-full cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
           {video ? <video src={mediaUrl(video)} className="h-full w-full bg-black object-contain" muted autoPlay loop playsInline data-testid="reel-preview" />
             : <span className="flex flex-col items-center gap-2 text-sm text-slate-500">{uploading ? <Loader2 className="h-7 w-7 animate-spin" /> : <Video className="h-7 w-7" />}{uploading ? "Mengunggah..." : `Pilih video vertikal (maks. ${MAX_VIDEO_MB} MB)`}</span>}
