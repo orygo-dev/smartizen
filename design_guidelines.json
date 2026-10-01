@@ -1,0 +1,193 @@
+{
+  "project_name": "SMARTIZEN",
+  "tagline": "Warga Terhubung, Lingkungan Maju",
+  "language": "Bahasa Indonesia",
+  "design_archetype": "ARCHETYPE 1 & 4 FUSION - Modern Indonesian Civic Tech (Clean, High-Trust, Vibrant Community)",
+  "theme_strategy": {
+    "default_mode": "light",
+    "theme_toggle": true,
+    "light_mode_background": "#F8FAFC",
+    "dark_mode_background": "#0F172A",
+    "notes": "Light theme is preferred for official administrative legibility; dark mode adds high-tech feel for late-night viewing and executive monitoring."
+  },
+  "typography": {
+    "heading_font": "Plus Jakarta Sans, Outfit, sans-serif",
+    "body_font": "Plus Jakarta Sans, Inter, system-ui, sans-serif",
+    "mono_font": "JetBrains Mono, Source Code Pro, monospace",
+    "hierarchy": {
+      "h1_hero": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight",
+      "h2_section": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight",
+      "h3_card_header": "text-xl sm:text-2xl font-semibold tracking-normal",
+      "h4_widget": "text-lg sm:text-xl font-medium",
+      "body_text": "text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300",
+      "small_label": "text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400"
+    },
+    "pairing_rules": "Never default to pure Inter for headlines. Use Plus Jakarta Sans / Outfit with tight tracking (-0.02em) on display headlines for regional Indonesian civic identity."
+  },
+  "colors": {
+    "primary": {
+      "light": "#0284C7",
+      "main": "#0369A1",
+      "dark": "#075985",
+      "gradient": "from-sky-600 via-blue-600 to-teal-600",
+      "label": "Ocean Blue (Amanah & Terpercaya)"
+    },
+    "secondary_cyan": {
+      "light": "#22D3EE",
+      "main": "#06B6D4",
+      "dark": "#0891B2",
+      "label": "Cyan Digital (Inovasi & Konektivitas)"
+    },
+    "accent_teal": {
+      "light": "#2DD4BF",
+      "main": "#0D9488",
+      "dark": "#0F766E",
+      "label": "Teal Lingkungan (Berkelanjutan)"
+    },
+    "status_emerald": {
+      "light": "#34D399",
+      "main": "#10B981",
+      "dark": "#047857",
+      "label": "Emerald Kemajuan & Verifikasi Sukses"
+    },
+    "warning_amber": {
+      "main": "#F59E0B",
+      "light": "#FEF3C7",
+      "text": "#B45309",
+      "label": "Proses / Menunggu Persetujuan"
+    },
+    "destructive_rose": {
+      "main": "#F43F5E",
+      "light": "#FFE4E6",
+      "text": "#BE123C",
+      "label": "Ditolak / Laporan Darurat / Danger"
+    },
+    "neutral_slates": {
+      "bg_app": "bg-slate-50 dark:bg-slate-950",
+      "card_bg": "bg-white dark:bg-slate-900",
+      "border": "border-slate-200 dark:border-slate-800",
+      "subtle": "bg-slate-100/80 dark:bg-slate-800/60"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 shadow-sm",
+    "tracing_beam_card": "relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md transition-all hover:shadow-xl hover:-translate-y-0.5",
+    "badges": "rounded-full px-3 py-1 text-xs font-semibold tracking-wide inline-flex items-center gap-1.5",
+    "shadow_system": "shadow-[0_4px_20px_-2px_rgba(2,132,199,0.08)] dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.5)]"
+  },
+  "layout_and_grids": {
+    "citizen_home": "Tetris Grid Layout with sticky filter bar, horizontal story scroll, quick access action pill grid, and multi-tab feed",
+    "dashboard_grid": "High Density Bento Grid with top KPI row (4 columns), primary analytics/chart card (2-span), feed/activity list (1-span), and regional quick action table",
+    "rt_wizard": "8-Step Stepper container with left vertical progress tracker and right interactive form pane",
+    "sidebar_navigation": "Role-aware sidebar with regional badge header (e.g. RT 005 / RW 002 Kel. Kebayoran Baru), active state glowing indicator, and mobile sheet overlay"
+  },
+  "roles_and_dashboards": [
+    {
+      "role": "Warga (Citizen)",
+      "focus": "Social Feed, Iuran Warga, Layanan Surat Online, Laporan Pengaduan, Agenda RT, Produk UMKM Lokal",
+      "badge_color": "bg-sky-100 text-sky-800 border-sky-200"
+    },
+    {
+      "role": "Pengurus RT (Ketua / Sekretaris RT)",
+      "focus": "Verifikasi Warga Baru, Persetujuan Surat Pengantar RT, Catatan Kas & Iuran, Pengumuman RT, Pos Ronda / Agenda",
+      "badge_color": "bg-emerald-100 text-emerald-800 border-emerald-200"
+    },
+    {
+      "role": "Pengurus RW",
+      "focus": "Monitoring RT-RT Wilayah, Rekapitulasi Iuran RW, Resolusi Pengaduan Escalated, Surat Keterangan RW",
+      "badge_color": "bg-teal-100 text-teal-800 border-teal-200"
+    },
+    {
+      "role": "Kelurahan / Desa",
+      "focus": "Verifikasi Kependudukan Lanjutan, Surat Layanan Kelurahan, Peta Wilayah RW/RT, Bansos & UMKM Desa",
+      "badge_color": "bg-cyan-100 text-cyan-800 border-cyan-200"
+    },
+    {
+      "role": "Kecamatan",
+      "focus": "Agregat Data Kelurahan, Peta Layanan Publik Kecamatan, Laporan Pengaduan Lintas Desa",
+      "badge_color": "bg-indigo-100 text-indigo-800 border-indigo-200"
+    },
+    {
+      "role": "Kabupaten / Kota",
+      "focus": "Executive Command Center, Stat Demografi Wilayah, Integrasi SmartCity, Revenue & Monetization",
+      "badge_color": "bg-purple-100 text-purple-800 border-purple-200"
+    },
+    {
+      "role": "Super Admin",
+      "focus": "Sistem RBAC, Audit Log, Manajemen Wilayah Indonesia (Provinsi -> Kota -> Kec -> Kel -> RW -> RT), Monetisasi",
+      "badge_color": "bg-rose-100 text-rose-800 border-rose-200"
+    }
+  ],
+  "components_spec": {
+    "Button": "Pill or rounded-xl buttons with clear hover/active states and loading spinner support. Attribute: data-testid='[action]-button'",
+    "StatCard": "Dense metric card with icon badge, title, big value, trend indicator percentage, and subtle sparkline/progress bar.",
+    "StatusChip": "Semantic color-coded status pills: Menunggu (Amber), Disetujui (Emerald), Ditolak (Rose), Selesai (Teal), Draf (Slate).",
+    "Wizard": "Stepper component with step title, description, progress bar, multi-step validation state, back/next/submit actions.",
+    "Modal": "Accessible dialog with backdrop blur, custom header icon, clear confirm/cancel triggers, and focus trap.",
+    "Table": "Clean administrative table with sortable columns, row hover highlights, status pills, action dropdowns, and pagination.",
+    "EmptyState": "Warm Bahasa Indonesia guidance with custom icon, friendly explanation text, and direct action CTA button."
+  },
+  "media_and_images": {
+    "banners": [
+      {
+        "category": "Indonesian Neighborhood Community",
+        "url": "https://images.unsplash.com/photo-1774370793401-4206e5fae59e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHxfMTc5MDg2MzMzM3ww&ixlib=rb-4.1.0&q=85",
+        "alt": "Kehidupan Warga di Lingkungan RT Indonesia"
+      },
+      {
+        "category": "Gotong Royong & Balai Warga",
+        "url": "https://images.unsplash.com/photo-1749343272870-0d21d105e86b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwyfHwxNzkwODYzMzMzfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Pertemuan & Kumpul Warga"
+      }
+    ],
+    "avatars": [
+      {
+        "name": "Ibu Rahmawati (Warga RT 005)",
+        "url": "https://images.unsplash.com/photo-1634707532472-00e23a3a5f43?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHw0fHwxNzkwODYzMzM5fDA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "name": "Pak Bambang (Ketua RT 005)",
+        "url": "https://images.unsplash.com/photo-1516011362164-3095a82b0af9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwzfHwxNzkwODYzMzM5fDA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "name": "Mas Agus (Warga Aktif)",
+        "url": "https://images.unsplash.com/photo-1526218769555-7a8cced31a78?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHwxNzkwODYzMzM5fDA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "name": "Pak Sutrisno (Petani & Tokoh Desa)",
+        "url": "https://images.unsplash.com/photo-1721713478248-ded19734143d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHwxNzkwODYzMzM5fDA&ixlib=rb-4.1.0&q=85"
+      }
+    ]
+  },
+  "testing_requirements": {
+    "data_testid_convention": "kebab-case, role/function-based",
+    "mandatory_elements": [
+      "nav-brand-logo",
+      "auth-login-submit-button",
+      "auth-register-warga-button",
+      "auth-register-rt-button",
+      "rt-wizard-step-[number]",
+      "rt-wizard-next-button",
+      "rt-wizard-submit-button",
+      "role-switcher-dropdown",
+      "dashboard-kpi-[metric-key]",
+      "civic-service-surat-button",
+      "civic-service-pengaduan-button",
+      "civic-service-iuran-button",
+      "feed-post-create-input",
+      "feed-like-button",
+      "feed-comment-button",
+      "modal-confirm-button",
+      "theme-toggle-button"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build SMARTIZEN with primary language Bahasa Indonesia throughout all pages, modals, toasts, empty states, and step descriptions.",
+    "Implement two registration choices on entry: 'Daftar sebagai Warga' and 'Daftar sebagai RT'.",
+    "Build the complete 8-step RT Registration Wizard with state persistence, validation, document mock upload, and verification status preview.",
+    "Implement Role-Based Admin Dashboards with seamless live switching among 7 roles (Warga, RT, RW, Kelurahan, Kecamatan, Kabupaten, Super Admin) via header role badge/switcher.",
+    "Include core civic features: Layanan Surat (Letter request with PDF preview mock), Pengaduan Warga (Complaint submission with status tracking), Iuran Warga (Dues payment tracker with QRIS mock), Agenda RT (Events calendar), and Social Feed (Stories, posts, UMKM highlights, reactions).",
+    "Ensure every single interactive element has a data-testid attribute.",
+    "Use Lucide-React icons and Tailwind CSS classes exclusively for clean, maintainable JS code."
+  ]
+}
