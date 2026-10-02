@@ -29,8 +29,13 @@ Region-scoped RBAC enforced server-side; NIK/KK never plaintext; Bahasa Indonesi
 - Full two-person E2E (seller+buyer): store → product → discover/save → Chat Penjual → bidirectional chat — passed. "Chat Penjual" now opens the conversation directly.
 - Tests: backend/tests/test_reel_social_and_chat.py 28/28 (59/59 cumulative new-feature tests).
 
+### 2026-10-02 (b)
+- Feed Warga scoped server-side: residents see posts from their kelurahan (default) or only their RT (toggle), plus own posts; platform admins see all; out-of-area rt_id / like / comment → 403. Posts show RT label.
+- Order requests: product dialog (from product grid or merchant detail) with qty + note → POST /api/marketplace/orders (server-priced); /app/pesanan with "Pesanan Saya"/"Pesanan Masuk"; seller accept/reject/complete, buyer cancel; notifications both ways; chat shortcut. No payment (settled directly).
+- Tests: backend/tests/test_orders_and_feed_scope.py 34/34, regression 59/59.
+
 ## Backlog
-- P0: Feed Warga (GET /api/social/feed) is not RT-filtered for residents — posts visible across RTs.
+- P0 (resolved 2026-10-02): Feed RT scoping.
 - P0: Rewrite git history on GitHub to purge old password (owner action); set new secrets in production.
 - P1: test_smartizen_v2.py depends on removed pre-seeded accounts → refactor to dynamic users; deeper UI E2E of chat & marketplace multi-user flows; per-media access control (media URLs are unguessable but public).
 - P1: Real OTP (Twilio/ID gateway), payments (Midtrans/Xendit), FCM push — still MOCKED.

@@ -1,0 +1,33 @@
+{
+  "summary": "Iteration 4 — Verified (1) RT-scoped Feed Warga (village default, rt scope, cross-village 403, admin sees all, rt_id-outside-scope 403, like/comment 403 on out-of-area posts, empty comment 400, rt_name present) and (2) Marketplace Order Requests end-to-end on mobile 390x844 with two residents in the same ACTIVE RT (Gandaria Utara / RW 002 / RT 005). Backend 34/34 new tests pass + 59/59 previous regression tests pass. Frontend: scope toggle, feed-post-rt label, product dialog with qty stepper updating order-total, order-submit redirect to /app/pesanan, order-total-<id>, seller accept→completed with buyer status-chip-COMPLETED, buyer cancel pending, marketplace-orders-button nav, order-chat opens conversation directly, product-own-note for own product, merchant-product tile opens same dialog. Home 'Kabar Warga' section still loads. Chat/reels unaffected.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_orders_and_feed_scope.py",
+    "/app/backend/tests/test_new_features.py",
+    "/app/backend/tests/test_reel_social_and_chat.py",
+    "/app/test_reports/pytest/orders_feed_scope.xml",
+    "/app/test_reports/pytest/regression.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "backend/routers/social.py _feed_rt_ids correctly unions descendant_rt_ids (RT heads/admins) with viewer's own RT + all RTs in same village when scope=village; platform admin bypasses filter. _post_or_403 permits author's own posts regardless of scope — matches 'plus their own posts' requirement. Clean implementation.",
+    "backend/routers/orders.py — all server-side validation is enforced: price/subtotal/total computed from DB, PENDING default, SELLER_MOVES/BUYER_MOVES whitelists are strict, notifications fired to the other party on both ORDER_NEW and ORDER_STATUS. Pydantic Field(ge=1, le=99) correctly yields 422 for qty 0 and 100.",
+    "Minor: in orders.py the PUT product endpoint requires full ProductReq body (no PATCH), so toggling 'available' from a 3rd-party tool needs the whole payload — fine for current UI but worth a future PATCH endpoint.",
+    "Marketplace product list filters out unavailable items at the backend, so a buyer cannot normally reach product-soldout dialog from the search tab unless they come via a saved/merchant-detail path. Not a bug but limits coverage of product-soldout UI.",
+    "Chat location.state.open consume+clear (LOW nit from iter-3) remains unfixed; still not blocking happy path."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_orders_and_feed_scope.py (new)"
+  ],
+  "success_rate": {"backend": "100% (34/34 new + 59/59 regression)", "frontend": "100% of critical acceptance criteria for feed scope + orders flow"},
+  "test_credentials": "Super Admin antot251@gmail.com / Sz-p8dRbg3BvJo5Ed9OwVY (used only for admin-sees-all feed test). Residents created on-the-fly via /api/auth/register + verify-otp dev code; password Secret#2026; full_name prefixed 'TEST '.",
+  "seed_data_creation": "Created ~5 TEST wargas across Gandaria Utara (RT 005 ACTIVE, 2nd RT in same village UNCLAIMED-joined) + Kramat Pela (1 RT UNCLAIMED-joined); 2 TEST merchants (TEST Toko Order, TEST Toko UI, TEST Toko C); multiple TEST products (all deleted via /marketplace/products/{id} at end); several TEST feed posts in each RT (not deleted — no public delete API); orders left in DB (COMPLETED/CANCELLED/PENDING); conversations/messages left behind.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend: pytest /app/backend/tests/test_orders_and_feed_scope.py covers RT-scoped feed + orders CRUD/transitions; test_28 requires full ProductReq payload (not partial). test_reel_social_and_chat.py was already defensive about RT-filtered feed (test_23 pytest.skips). To rerun backend regression: `set -a && . /app/backend/.env && set +a && cd /app/backend && pytest tests/ -v`. UI public URL is https://neighborhood-umkm.preview.emergentagent.com, login route /login, buyer phone+password, mobile viewport 390x844. Order id can be fetched from `/api/marketplace/orders?role=buyer` to avoid DOM-walking the orders page. For 'product-soldout' coverage, start from merchant-detail path since the search tab hides unavailable products."
+}
