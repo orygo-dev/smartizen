@@ -1,0 +1,29 @@
+{
+  "summary": "Iteration 3 — Verified Marketplace → 'Chat Penjual' (merchant-chat) auto-open fix from iter-2. On mobile 390x844, two TEST residents created via API in same ACTIVE RT (Gandaria Utara / RW 002 / RT 005). Seller A created TEST merchant + product. Buyer B logged in via UI, opened /app/marketplace, switched to Toko tab, opened merchant, clicked [data-testid=merchant-chat] → navigated to /app/chat and the conversation view opened DIRECTLY (chat-back visible, chat-message-input visible, chat-rt-button list element NOT visible). Sent a message, bubble appeared. Pressed chat-back → returned to list view with one conv-<id> row. Regression: fresh direct navigation to /app/chat (new session, no prior router state) correctly shows list view (chat-rt-button visible, chat-message-input hidden, history.state={idx:0}). All critical acceptance criteria met.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Chat page reload after merchant-chat auto-open",
+       "issue": "React Router's location.state (set by Marketplace.chatSeller via navigate('/app/chat', { state: { open: ... } })) is backed by window.history.state, so if the user hits browser-reload while on /app/chat after being auto-navigated, Chat.jsx re-reads location.state.open and reopens the same conversation. In-app navigation (bottom-nav or fresh URL) is unaffected. Suggested fix: after consuming location.state.open in Chat.jsx, clear it via navigate('.', { replace: true, state: null }) or window.history.replaceState({}, '').",
+       "affected_selectors": ["[data-testid='chat-message-input']"],
+       "priority": "LOW"}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_reel_social_and_chat.py"],
+  "action_items": [
+    "(LOW) In Chat.jsx consume+clear location.state.open after first mount so page reload doesn't re-open the same conv. Not blocking; main fix works for the happy path."
+  ],
+  "critical_code_review_comments": [
+    "Marketplace.chatSeller correctly posts /api/chat/conversations then navigate('/app/chat', { state: { open: { id, peer } } }). Idempotent via sorted-pair on backend.",
+    "Chat.jsx line 80: useState(location.state?.open || null) correctly initialises active conversation. Polling + reload() on back-navigation works. Only nit: state not consumed/cleared after mount (see LOW issue)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a this iter (backend 59/59 already green)", "frontend": "100% of merchant-chat auto-open + back + direct-nav regression"},
+  "test_credentials": "Super Admin antot251@gmail.com / Sz-p8dRbg3BvJo5Ed9OwVY (not used). Residents created on-the-fly: phone 0812XXXXXXXX / password Secret#2026, full_name prefixed 'TEST '.",
+  "seed_data_creation": "Created 3 TEST wargas in RT 005 Gandaria Utara + 1 TEST merchant 'TEST Toko MCFix' + 1 TEST product 'TEST MCFix Nasi'. Product deleted via DELETE /api/marketplace/products/{id} as seller A. Merchant left behind (no public delete endpoint). Conversation + messages left behind (contains the TEST message 'Halo pak, saya mau beli (TEST MCFix)').",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Merchant-chat auto-open fix (Marketplace.chatSeller passes state.open, Chat.jsx inits active from location.state.open) is verified working on mobile 390x844. The only residual nit is that location.state persists across browser reload — this is a React-Router characteristic because state is stored in window.history.state. If main agent fixes this they should clear history.state in Chat.jsx first useEffect. Login route is /login (not /masuk). Backend regression suite /app/backend/tests/test_reel_social_and_chat.py still authoritative for reel comments/share + marketplace→chat two-user flow."
+}

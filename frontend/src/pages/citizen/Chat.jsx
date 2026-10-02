@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Send, ArrowLeft, ShieldCheck, MessageCircle, Loader2, ImagePlus, Mic, Square, X, Check, CheckCheck, MoreVertical, Pencil, Trash2, Search, Ban, Flag, ShieldAlert } from "lucide-react";
 import { api, formatApiError, uploadFile, mediaUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -78,6 +78,9 @@ export default function Chat() {
   const { data: convs, loading, reload } = useApi("/chat/conversations", []);
   const location = useLocation();
   const [active, setActive] = useState(location.state?.open || null);
+  const navigate = useNavigate();
+  useEffect(() => { if (location.state?.open) navigate(location.pathname, { replace: true, state: null }); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);

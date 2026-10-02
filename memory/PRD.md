@@ -24,7 +24,13 @@ Region-scoped RBAC enforced server-side; NIK/KK never plaintext; Bahasa Indonesi
 - Merchant phone hidden unless phone_public or owner.
 - Tests: 31/31 new backend tests, test_smartizen.py 10/10; RT featured flow verified (tests/manual_umkm_rt_flow.py).
 
+### 2026-10-02
+- Reel comments (add/list/delete by author or reel owner, count, owner notified) via bottom sheet; share reel to RT feed (feed post with reel embed, hidden as "unavailable" if viewer lacks reel access).
+- Full two-person E2E (seller+buyer): store → product → discover/save → Chat Penjual → bidirectional chat — passed. "Chat Penjual" now opens the conversation directly.
+- Tests: backend/tests/test_reel_social_and_chat.py 28/28 (59/59 cumulative new-feature tests).
+
 ## Backlog
+- P0: Feed Warga (GET /api/social/feed) is not RT-filtered for residents — posts visible across RTs.
 - P0: Rewrite git history on GitHub to purge old password (owner action); set new secrets in production.
 - P1: test_smartizen_v2.py depends on removed pre-seeded accounts → refactor to dynamic users; deeper UI E2E of chat & marketplace multi-user flows; per-media access control (media URLs are unguessable but public).
 - P1: Real OTP (Twilio/ID gateway), payments (Midtrans/Xendit), FCM push — still MOCKED.
