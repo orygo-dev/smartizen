@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, MessageCircle, Send, Loader2 } from "lucide-react";
-import { api, formatApiError } from "@/lib/api";
+import { Heart, MessageCircle, Send, Loader2, Clapperboard, Music2 } from "lucide-react";
+import { api, formatApiError, mediaUrl } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import { PageHeader } from "@/components/sz/PageHeader";
 import { Loading, EmptyState } from "@/components/sz/States";
@@ -15,6 +15,21 @@ import {
 
 const CATS = ["Umum", "Kegiatan", "Info Warga", "UMKM", "Lingkungan", "Kehilangan", "Acara", "Jual/Beli"];
 
+function SharedReel({ reel }) {
+  if (reel.unavailable)
+    return <p className="mt-3 flex items-center gap-2 rounded-xl bg-slate-100 p-3 text-sm text-slate-500 dark:bg-slate-800" data-testid="feed-reel-unavailable"><Clapperboard className="h-4 w-4" /> Reel ini tidak tersedia untuk Anda.</p>;
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl bg-black" data-testid={`feed-reel-${reel.id}`}>
+      <video src={mediaUrl(reel.media_url)} controls playsInline preload="metadata" className="mx-auto max-h-[420px] w-full object-contain" />
+      <div className="px-3 py-2 text-xs text-white/80">
+        <p className="flex items-center gap-1 font-semibold text-white"><Clapperboard className="h-3.5 w-3.5" /> Reel oleh {reel.author_name || "Warga"}</p>
+        {reel.caption && <p className="mt-0.5 line-clamp-2">{reel.caption}</p>}
+        {reel.music && <p className="mt-0.5 flex items-center gap-1"><Music2 className="h-3 w-3" /> {reel.music.title}</p>}
+      </div>
+    </div>
+  );
+}
+
 function PostCard({ post, onLike }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -23,7 +38,8 @@ function PostCard({ post, onLike }) {
         <div><p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{post.author_name || "Warga"}</p><p className="text-xs text-slate-400">{fmtDateTime(post.created_at)}</p></div>
         <span className="ml-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 dark:bg-slate-800">{post.category}</span>
       </div>
-      <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{post.text}</p>
+      {post.text && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{post.text}</p>}
+      {post.reel && <SharedReel reel={post.reel} />}
       <div className="mt-3 flex items-center gap-4 border-t border-slate-100 pt-3 dark:border-slate-800">
         <button onClick={() => onLike(post)} data-testid="feed-like-button" className={`flex items-center gap-1.5 text-sm font-medium ${post.liked_by_me ? "text-rose-500" : "text-slate-500"}`}>
           <Heart className={`h-4 w-4 ${post.liked_by_me ? "fill-current" : ""}`} /> {post.like_count || 0}

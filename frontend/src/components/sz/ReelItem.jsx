@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Heart, Music2, Volume2, VolumeX, Trash2, Lock, Eye } from "lucide-react";
+import { Heart, Music2, Volume2, VolumeX, Trash2, Lock, Eye, MessageCircle, Share2 } from "lucide-react";
+import { ReelComments } from "@/components/sz/ReelComments";
+import { ReelShareDialog } from "@/components/sz/ReelShareDialog";
 import { api, formatApiError, mediaUrl } from "@/lib/api";
 import { PRIVACY_LABEL } from "@/lib/content";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,6 +15,9 @@ export function ReelItem({ reel, muted, onToggleMute, onDeleted }) {
   const [active, setActive] = useState(false);
   const [liked, setLiked] = useState(reel.liked_by_me);
   const [likes, setLikes] = useState(reel.like_count);
+  const [comments, setComments] = useState(reel.comment_count || 0);
+  const [showComments, setShowComments] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const viewed = useRef(false);
 
   useEffect(() => {
@@ -51,6 +56,12 @@ export function ReelItem({ reel, muted, onToggleMute, onDeleted }) {
           <Heart className={cn("h-7 w-7 transition-transform active:scale-125", liked && "fill-rose-500 text-rose-500")} />
           <span className="text-xs font-semibold" data-testid={`reel-like-count-${reel.id}`}>{likes}</span>
         </button>
+        <button onClick={() => setShowComments(true)} className="flex flex-col items-center gap-0.5" data-testid={`reel-comments-${reel.id}`}>
+          <MessageCircle className="h-7 w-7" /><span className="text-xs font-semibold" data-testid={`reel-comment-count-${reel.id}`}>{comments}</span>
+        </button>
+        <button onClick={() => setShowShare(true)} className="flex flex-col items-center gap-0.5" data-testid={`reel-share-${reel.id}`}>
+          <Share2 className="h-6 w-6" /><span className="text-[10px] font-semibold">Bagikan</span>
+        </button>
         <span className="flex flex-col items-center gap-0.5 text-xs"><Eye className="h-6 w-6" />{reel.view_count}</span>
         {reel.is_mine && <button onClick={remove} data-testid={`reel-delete-${reel.id}`}><Trash2 className="h-6 w-6 text-rose-300" /></button>}
       </div>
@@ -63,6 +74,8 @@ export function ReelItem({ reel, muted, onToggleMute, onDeleted }) {
         {reel.caption && <p className="mt-2 line-clamp-2 text-sm text-white/90">{reel.caption}</p>}
         {reel.music && <p className="mt-1.5 flex items-center gap-1 text-xs text-white/80"><Music2 className="h-3 w-3" /> {reel.music.title}</p>}
       </div>
+      <ReelComments reelId={reel.id} open={showComments} onOpenChange={setShowComments} onCount={(n) => setComments((c) => Math.max(0, c + n))} />
+      <ReelShareDialog reel={reel} open={showShare} onOpenChange={setShowShare} />
     </div>
   );
 }

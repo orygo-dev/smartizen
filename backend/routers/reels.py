@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from core.db import db
-from core.common import new_id
+from core.common import new_id, notify
 from core.security import get_current_user, iso
 from core.content import PRIVACY, region_ctx, viewer_ctx, visibility_query, can_view, own_media, validate_music
 
@@ -76,6 +76,76 @@ async def view_reel(reel_id: str, current=Depends(get_current_user)):
     return {"ok": True}
 
 
+class CommentReq(BaseModel):
+    text: str
+
+
+@router.get("/{reel_id}/comments")
+async def list_comments(reel_id: str, current=Depends(get_current_user)):
+    r = await _visible(reel_id, current)
+    rows = await db.reel_comments.find({"reel_id": reel_id}, {"_id": 0}).sort("created_at", 1).to_list(500)
+    for c in rows:
+        c["can_delete"] = current["id"] in (c["author_id"], r["author_id"])
+    return rows
+
+
+@router.post("/{reel_id}/comments")
+async def add_comment(reel_id: str, req: CommentReq, current=Depends(get_current_user)):
+    text = req.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Komentar tidak boleh kosong.")
+    r = await _visible(reel_id, current)
+    prof = await db.social_profiles.find_one({"user_id": current["id"]}, {"_id": 0})
+    doc = {"id": new_id(), "reel_id": reel_id, "author_id": current["id"],
+           "author_name": (prof or {}).get("display_name"), "text": text[:500], "created_at": iso()}
+    await db.reel_comments.insert_one(doc)
+    await db.reels.update_one({"id": reel_id}, {"$inc": {"comment_count": 1}})
+    if r["author_id"] != current["id"]:
+        await notify(r["author_id"], "REEL_COMMENT", "Komentar baru di reel Anda",
+                     f"{doc['author_name'] or 'Warga'}: {text[:80]}", "/app/reels", reel_id)
+    doc.pop("_id", None)
+    doc["can_delete"] = True
+    return doc
+
+
+@router.delete("/{reel_id}/comments/{comment_id}")
+async def delete_comment(reel_id: str, comment_id: str, current=Depends(get_current_user)):
+    c = await db.reel_comments.find_one({"id": comment_id, "reel_id": reel_id})
+    r = await db.reels.find_one({"id": reel_id})
+    if not c or not r:
+        raise HTTPException(status_code=404, detail="Komentar tidak ditemukan.")
+    if current["id"] not in (c["author_id"], r["author_id"]):
+        raise HTTPException(status_code=403, detail="Anda tidak dapat menghapus komentar ini.")
+    await db.reel_comments.delete_one({"id": comment_id})
+    await db.reels.update_one({"id": reel_id}, {"$inc": {"comment_count": -1}})
+    return {"ok": True}
+
+
+class ShareReq(BaseModel):
+    text: str = ""
+
+
+@router.post("/{reel_id}/share")
+async def share_to_feed(reel_id: str, req: ShareReq, current=Depends(get_current_user)):
+    r = await _visible(reel_id, current)
+    ctx = await region_ctx(current["id"])
+    if not ctx["rt_id"]:
+        raise HTTPException(status_code=400, detail="Bergabung dengan RT terlebih dahulu untuk berbagi ke Feed RT.")
+    prof = await db.social_profiles.find_one({"user_id": current["id"]}, {"_id": 0})
+    doc = {"id": new_id(), "author_id": current["id"],
+           "author_name": (prof or {}).get("display_name"), "author_avatar": (prof or {}).get("avatar"),
+           "rt_id": ctx["rt_id"], "text": req.text.strip()[:1000], "category": "Umum", "photos": [],
+           "location": None, "reel_id": reel_id, "like_count": 0, "comment_count": 0, "likes": [], "created_at": iso()}
+    await db.feed_posts.insert_one(doc)
+    await db.reels.update_one({"id": reel_id}, {"$inc": {"share_count": 1}})
+    if r["author_id"] != current["id"]:
+        await notify(r["author_id"], "REEL_SHARE", "Reel Anda dibagikan",
+                     f"{doc['author_name'] or 'Warga'} membagikan reel Anda ke Feed RT.", "/app/feed", reel_id)
+    doc.pop("_id", None)
+    doc.pop("likes", None)
+    return doc
+
+
 @router.delete("/{reel_id}")
 async def delete_reel(reel_id: str, current=Depends(get_current_user)):
     r = await db.reels.find_one({"id": reel_id})
@@ -84,4 +154,5 @@ async def delete_reel(reel_id: str, current=Depends(get_current_user)):
     if r["author_id"] != current["id"]:
         raise HTTPException(status_code=403, detail="Bukan reel Anda.")
     await db.reels.delete_one({"id": reel_id})
+    await db.reel_comments.delete_many({"reel_id": reel_id})
     return {"ok": True}

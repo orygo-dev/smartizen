@@ -5,6 +5,7 @@ from bson import ObjectId
 from core.db import db
 from core.common import new_id, audit
 from core.security import get_current_user, iso
+from core.content import viewer_ctx, can_view
 
 router = APIRouter(prefix="/api/social", tags=["social"])
 
@@ -52,9 +53,14 @@ async def list_feed(category: Optional[str] = None, rt_id: Optional[str] = None,
     if rt_id:
         q["rt_id"] = rt_id
     rows = await db.feed_posts.find(q, {"_id": 0}).sort("created_at", -1).to_list(100)
+    v = await viewer_ctx(current) if any(r.get("reel_id") for r in rows) else None
     for r in rows:
         r["liked_by_me"] = current["id"] in r.get("likes", [])
         r.pop("likes", None)
+        if r.get("reel_id"):
+            reel = await db.reels.find_one({"id": r["reel_id"]}, {"_id": 0, "likes": 0})
+            r["reel"] = ({k: reel.get(k) for k in ("id", "media_url", "caption", "author_name", "music", "privacy")}
+                         if reel and can_view(reel, v) else {"unavailable": True})
     return rows
 
 
