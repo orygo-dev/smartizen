@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 2 — Two-user E2E for chat+marketplace and reel comments/share. Wrote /app/backend/tests/test_reel_social_and_chat.py (28 tests, 28 pass) covering reel comments CRUD (empty 400, cross-RT 403, delete by reel-owner & by non-author 403, notification REEL_COMMENT, comment_count +/-), reel share (cross-RT 403, cross-RT viewer sees reel.unavailable:true, same-RT embeds reel object, notification REEL_SHARE, no-RT-membership 400/403), and full two-user marketplace→chat flow (merchant create, product create, buyer discovers product, saves, opens merchant, phone hidden for non-owner, starts chat, sends, seller unread count, seller reads+replies, buyer receives, umkm/nearby shows seller store). UI phase in Playwright on mobile 390px with two browser contexts: Seller A + Buyer B both verified-residents in same ACTIVE RT (RT005 Gandaria Utara). ALL critical flows passed in UI: buyer product discovery, save, toko tab search, merchant detail, 'Chat Penjual' button, chat conversation open+send, seller chat-badge appears within 2.5s (polling), seller opens conv and sees buyer message, seller replies, buyer sees reply within 2.5s (polling). umkm-card-<mid> on home opens /app/marketplace?toko=<mid> correctly. Reel comments: open sheet, empty state visible, send comment, delete own comment — all via UI. Reel share: dialog opens, submit creates feed post, /app/feed shows feed-reel-<reelId> embed. Backend 28/28 + previous iteration 31/31 = 59/59 new-feature tests passing.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Marketplace → Chat Penjual (merchant-chat)",
+       "issue": "Clicking 'Chat Penjual' creates the conversation via POST /api/chat/conversations then navigates to /app/chat (list view). It does NOT auto-open the newly-created conversation; the buyer must manually tap the conv row to start typing. For a 'click → type' purchase intent this is a visible friction point. Fix: either (a) pass ?with=<peer_user_id> or ?cid=<convId> query param and auto-setActive on mount, or (b) have chatSeller setActive via a shared store, or (c) navigate to /app/chat/<cid>.",
+       "affected_selectors": ["[data-testid='merchant-chat']", "/app/chat"],
+       "priority": "MEDIUM"}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_reel_social_and_chat.py",
+    "/app/backend/tests/test_new_features.py",
+    "/app/test_reports/pytest/reel_chat_results.xml"
+  ],
+  "action_items": [
+    "(MEDIUM UX) Marketplace.chatSeller() should auto-open the created conversation on /app/chat (e.g. navigate(`/app/chat?cid=${conv.id}`) and have Chat.jsx read searchParams on mount to setActive). Current behavior forces an extra manual click.",
+    "(Carried from iter-1, optional) Add DialogDescription / aria-describedby to StoryComposer and other shadcn Dialogs to silence a11y console warning."
+  ],
+  "critical_code_review_comments": [
+    "routers/reels.py comments & share: permissions correct — comment author OR reel owner can delete (line 117), reel.visibility enforced via _visible() → can_view() (lines 54-60), share requires rt_id (line 132), notify fires only when actor != owner. Good.",
+    "routers/social.py list_feed embeds reel with can_view(reel, v) → {unavailable:true} fallback — correct. Note: feed itself is NOT RT-filtered (q only filters by category/rt_id when explicit) → non-member of RT can see post rows; mitigated by reel.unavailable but non-reel feed posts remain cross-RT visible. Already flagged as known behaviour in review request.",
+    "chat.py send_message / start_conversation / unread-count all correct and consistent; idempotency via client_message_id works.",
+    "marketplace.py: product save toggle idempotent; phone hidden for non-owner when phone_public=false; merchant-chat creates/finds conversation (idempotent via sorted-pair). No ObjectId leakage (all projections exclude _id).",
+    "chat.py presence/typing use process-local dicts — won't work with multiple workers but acceptable for single-uvicorn MVP."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_reel_social_and_chat.py (new)"
+  ],
+  "success_rate": {
+    "backend": "28/28 (100%) new-feature tests this iteration; 59/59 cumulative with iter-1",
+    "frontend": "100% of specified UI flows verified end-to-end on mobile 390px (login, marketplace discovery/save/scope/tabs, merchant detail, chat send, chat-badge polling, bidirectional messaging polling, umkm-nearby + deep-link, reel comments add/delete, reel share dialog, feed-reel embed)"
+  },
+  "test_credentials": "Super Admin antot251@gmail.com / Sz-p8dRbg3BvJo5Ed9OwVY — ok (not used this run). Residents created on the fly with phone 0812XXXXXXXX / password Secret#2026 and full_name 'TEST ...' prefix.",
+  "seed_data_creation": "Created ~5 TEST wargas in RT 005/RW 002/Gandaria Utara, 2 TEST merchants (TEST Toko Chat, TEST Toko UI, TEST Toko UI2), 2-3 TEST products, 2 TEST reels. Reels & most products deleted by cleanup; merchants left behind (no public delete endpoint) — still prefixed TEST for easy future cleanup.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_reel_social_and_chat.py is now the authoritative regression suite for reel comments, reel share, and the full two-user marketplace→chat flow. Combine with test_new_features.py for full new-feature regression (59 tests). The only functional miss this round is a UX nit on merchant-chat not auto-opening the conv — not a bug per PRD. Mobile viewport 390x844, polling intervals: chat badge ~8s but observed to update within 2.5s; messages polling ~2.5s observed. For reel UI testing, upload the fixture /app/tests/fixtures/sample_vertical.mp4 via reel-video-input then reel-submit-button, or create via API first (faster)."
+}

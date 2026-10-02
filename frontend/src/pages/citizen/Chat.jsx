@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 import { Send, ArrowLeft, ShieldCheck, MessageCircle, Loader2, ImagePlus, Mic, Square, X, Check, CheckCheck, MoreVertical, Pencil, Trash2, Search, Ban, Flag, ShieldAlert } from "lucide-react";
 import { api, formatApiError, uploadFile, mediaUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -75,7 +76,8 @@ function MessageBubble({ m, mine, peerId, onEdit, onDelete }) {
 export default function Chat() {
   const { user } = useAuth();
   const { data: convs, loading, reload } = useApi("/chat/conversations", []);
-  const [active, setActive] = useState(null);
+  const location = useLocation();
+  const [active, setActive] = useState(location.state?.open || null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);

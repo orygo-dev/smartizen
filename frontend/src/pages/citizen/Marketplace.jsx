@@ -57,9 +57,8 @@ function MerchantDetail({ mid, onBack }) {
 
   const chatSeller = async () => {
     try {
-      await api.post("/chat/conversations", { peer_user_id: m.owner_user_id });
-      toast.success("Percakapan dibuka. Lihat di menu Chat.");
-      navigate("/app/chat");
+      const { data } = await api.post("/chat/conversations", { peer_user_id: m.owner_user_id });
+      navigate("/app/chat", { state: { open: { id: data.id, peer: data.peer } } });
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
   };
 
