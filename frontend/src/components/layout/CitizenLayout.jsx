@@ -21,15 +21,18 @@ export default function CitizenLayout() {
   const location = useLocation();
   const [chatUnread, setChatUnread] = useState(0);
   const [notifUnread, setNotifUnread] = useState(0);
+  const [ordersPending, setOrdersPending] = useState(0);
 
   const refresh = useCallback(async () => {
     try {
-      const [c, n] = await Promise.all([
+      const [c, n, o] = await Promise.all([
         api.get("/chat/unread-count"),
         api.get("/social/notifications/unread-count"),
+        api.get("/marketplace/orders/pending-count").catch(() => ({ data: { pending: 0 } })),
       ]);
       setChatUnread(c.data?.unread || 0);
       setNotifUnread(n.data?.unread || 0);
+      setOrdersPending(o.data?.pending || 0);
     } catch {}
   }, []);
 
@@ -77,7 +80,12 @@ export default function CitizenLayout() {
               )}>
               {({ isActive }) => (
                 <>
-                  <t.icon className={cn("h-[22px] w-[22px]", isActive && "scale-110 transition-transform")} />
+                  <span className="relative">
+                    <t.icon className={cn("h-[22px] w-[22px]", isActive && "scale-110 transition-transform")} />
+                    {t.to === "/app/marketplace" && ordersPending > 0 && (
+                      <span data-testid="marketplace-order-badge" className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900">{ordersPending > 9 ? "9+" : ordersPending}</span>
+                    )}
+                  </span>
                   {t.label}
                 </>
               )}

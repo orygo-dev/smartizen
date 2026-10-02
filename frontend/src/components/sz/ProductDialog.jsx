@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Minus, Plus, Loader2, PackageOpen, ShoppingBag, Store } from "lucide-react";
+import { Minus, Plus, Loader2, PackageOpen, ShoppingBag, Store, ShoppingCart } from "lucide-react";
+import { useCart } from "@/lib/cart";
 import { api, formatApiError, mediaUrl } from "@/lib/api";
 import { rupiah } from "@/lib/labels";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +28,13 @@ export function ProductDialog({ product, merchantName, ownerId, onClose }) {
   const [busy, setBusy] = useState(false);
   const p = product;
   const mine = (ownerId || p?.owner_user_id) === user?.id;
+  const { cart, add } = useCart();
+  const otherShop = cart && p && cart.merchant_id !== p.merchant_id;
+
+  const addCart = () => {
+    if (!add(p, merchantName || p.merchant_name, qty)) return toast.error("Keranjang penuh (maksimum 20 produk).");
+    toast.success(`${p.name} ditambahkan ke keranjang.`); setQty(1); onClose();
+  };
 
   const order = async () => {
     setBusy(true);
@@ -55,9 +63,11 @@ export function ProductDialog({ product, merchantName, ownerId, onClose }) {
             <div className="space-y-3 border-t border-slate-100 pt-3 dark:border-slate-800">
               <div className="flex items-center justify-between"><span className="text-sm font-semibold">Jumlah</span><QtyStepper qty={qty} setQty={setQty} /></div>
               <Textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder="Catatan untuk penjual (mis. waktu ambil, alamat antar)" className="rounded-xl" data-testid="order-note-input" />
-              <div className="flex items-center justify-between">
-                <div><p className="text-xs text-slate-400">Total</p><p className="text-lg font-extrabold" data-testid="order-total">{rupiah(p.price * qty)}</p></div>
-                <Button onClick={order} disabled={busy} className="rounded-full sz-gradient px-6 text-white" data-testid="order-submit-button">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ShoppingBag className="mr-1.5 h-4 w-4" /> Kirim Pesanan</>}</Button>
+              <div><p className="text-xs text-slate-400">Total</p><p className="text-lg font-extrabold" data-testid="order-total">{rupiah(p.price * qty)}</p></div>
+              {otherShop && <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" data-testid="cart-other-shop-warning">Keranjang Anda berisi produk dari {cart.merchant_name}. Menambahkan produk ini akan mengganti keranjang.</p>}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={addCart} className="flex-1 rounded-full" data-testid="order-add-to-cart"><ShoppingCart className="mr-1.5 h-4 w-4" /> Keranjang</Button>
+                <Button onClick={order} disabled={busy} className="flex-1 rounded-full sz-gradient text-white" data-testid="order-submit-button">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ShoppingBag className="mr-1.5 h-4 w-4" /> Pesan Sekarang</>}</Button>
               </div>
               <p className="text-[11px] text-slate-400">Pembayaran dilakukan langsung dengan penjual setelah pesanan diterima.</p>
             </div>

@@ -76,6 +76,11 @@ async def _party_or_403(order_id, current):
     return o
 
 
+@router.get("/pending-count")
+async def pending_count(current=Depends(get_current_user)):
+    return {"pending": await db.orders.count_documents({"seller_id": current["id"], "status": "PENDING"})}
+
+
 @router.get("/{order_id}")
 async def get_order(order_id: str, current=Depends(get_current_user)):
     return await _party_or_403(order_id, current)

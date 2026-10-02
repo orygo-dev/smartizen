@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Store, Search, MessageCircle, Phone, Bookmark, BookmarkCheck, ArrowLeft, Clock, MapPin, Flag, Loader2, Store as StoreIcon, PackageOpen, Receipt } from "lucide-react";
 import { ProductDialog } from "@/components/sz/ProductDialog";
+import { CartBar } from "@/components/sz/CartBar";
 import { api, formatApiError, mediaUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { PageHeader } from "@/components/sz/PageHeader";
@@ -124,6 +125,8 @@ export default function Marketplace() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState(null);
+  const [pending, setPending] = useState(0);
+  useEffect(() => { api.get("/marketplace/orders/pending-count").then(({ data }) => setPending(data.pending)).catch(() => {}); }, []);
   const [params, setParams] = useSearchParams();
   const selected = params.get("toko");
   const setSelected = (id) => setParams(id ? { toko: id } : {});
@@ -147,13 +150,13 @@ export default function Marketplace() {
     catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
   };
 
-  if (selected) return <div><MerchantDetail mid={selected} onBack={() => setSelected(null)} /></div>;
+  if (selected) return <div className="pb-16"><MerchantDetail mid={selected} onBack={() => setSelected(null)} /><CartBar /></div>;
 
   return (
     <div>
       <PageHeader title="Marketplace" subtitle="UMKM dan produk lokal di sekitar Anda"
         action={<div className="flex gap-2">
-          <Button onClick={() => navigate("/app/pesanan")} variant="outline" data-testid="marketplace-orders-button" className="rounded-full"><Receipt className="mr-1.5 h-4 w-4" /> Pesanan</Button>
+          <Button onClick={() => navigate("/app/pesanan")} variant="outline" data-testid="marketplace-orders-button" className="rounded-full"><Receipt className="mr-1.5 h-4 w-4" /> Pesanan{pending > 0 && <span className="ml-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white" data-testid="marketplace-orders-badge">{pending > 9 ? "9+" : pending}</span>}</Button>
           <Button onClick={() => navigate("/app/toko")} variant="outline" data-testid="my-store-button" className="rounded-full"><Store className="mr-1.5 h-4 w-4" /> Toko Saya</Button>
         </div>} />
 
@@ -208,6 +211,7 @@ export default function Marketplace() {
         </div>
       )}
       <ProductDialog product={product} onClose={() => setProduct(null)} />
+      <CartBar />
     </div>
   );
 }
