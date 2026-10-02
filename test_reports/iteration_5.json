@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 5 — Verified (1) Multi-item Cart and (2) Seller Order Badge. Backend: 15/15 new tests pass (test_cart_and_pending.py) covering pending-count (seller-only, drops on accept/reject/cancel, 0 for buyer/third-party), multi-item orders (per-line subtotals & total correct for 3-product order 10k*2 + 15k*1 + 25k*3 = 110k), cross-merchant item -> 400, duplicate pid -> 400, >20 items -> 422, empty items -> 422. Regression test_orders_and_feed_scope.py 34/34 pass. Frontend (mobile 390x844): buyer login -> /app/marketplace -> ProductDialog qty-plus -> order-add-to-cart -> toast, dialog closes, cart-bar appears with cart-count/cart-bar-total; add 2nd product then merge same product (qty accumulates); cart-sheet with cart-item-<pid>, cart-plus/minus adjust cart-qty-<pid> and cart-total; minus-at-1 removes item; cart-note-input + cart-submit navigates to /app/pesanan; cart-bar disappears; order persisted via API (items/qty/total verified). Cart persists across reload. cart-clear empties. Other-shop warning (cart-other-shop-warning) shown when adding from a different merchant; adding replaces cart. 'Pesan Sekarang' (order-submit-button) still works for single-item direct order. Own product shows product-own-note and hides both cart & direct-order buttons. Seller sees marketplace-order-badge on bottom-nav Marketplace tab after buyer submits (polling picks it up within <10s) and marketplace-orders-badge on 'Pesanan' header; after accept, both badges disappear once poll fires. Buyer sees no badges. Cart is user-scoped: another user in same browser doesn't see cart after logout/login.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CartBar sheet", "issue": "On mobile 390x844 the bottom action row (cart-clear/cart-submit) can sit just outside the viewport in some viewports; Playwright reported 'Element is outside of the viewport' for cart-clear. Visually the sheet still allows clicking because of the mobile overlay, but the sheet content isn't scrollable to reach them cleanly. Consider wrapping the SheetContent in a scroll container or giving the footer a sticky-bottom position.", "selector": "[data-testid=cart-clear]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cart_and_pending.py",
+    "/app/backend/tests/test_orders_and_feed_scope.py",
+    "/app/test_reports/pytest/cart_pending.xml"
+  ],
+  "action_items": [
+    "LOW: make CartBar SheetContent footer sticky-bottom so cart-clear/cart-submit are never clipped on short viewports."
+  ],
+  "critical_code_review_comments": [
+    "backend/routers/orders.py: pending-count is a clean count_documents on {seller_id, status:PENDING} — correct and scoped to seller side only. ✅",
+    "orders.py create_order: lines[] built from DB-fetched product price/name; total = sum(subtotal); duplicate pid, cross-merchant, unavailable, own-shop all raise 400. ✅",
+    "cart.js: per-user key sz_cart_<uid>, dispatches storage event; `add` auto-replaces when merchant_id differs (new base ignores prior cart) — matches 'replace cart' requirement; MAX_CART_ITEMS=20 cap exactly matches backend Field(max_length=20). ✅",
+    "ProductDialog.jsx: cart-other-shop-warning renders when otherShop true; addCart doesn't block (replace semantics). ✅",
+    "CitizenLayout.jsx: polls /orders/pending-count on 8s interval + on route change; graceful 0 on error. ✅",
+    "LOW: CartBar sheet footer (cart-clear/cart-submit row) can clip on short viewports; add sticky bottom or ensure flex layout pushes it inside viewport.",
+    "LOW: cart `setQty` is called without a prior merchant guard — if cart is null (e.g., cleared between renders), it will crash on `cart.items`. Current call sites always check `cart` via useCart's state at component mount, so not reproducible in practice, but defensive null check in setQty would be safer."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cart_and_pending.py (new)"
+  ],
+  "success_rate": {"backend": "100% (15/15 new + 34/34 regression)", "frontend": "100% of listed acceptance criteria (cart flow, persistence, isolation, other-shop warning, direct order, own-product note, seller badge bottom-nav + header, badge disappears post-accept, buyer no badge)"},
+  "test_credentials": "Super Admin antot251@gmail.com / Sz-p8dRbg3BvJo5Ed9OwVY (unchanged). Residents registered on-the-fly (/api/auth/register + dev_otp verify-otp), password Secret#2026, prefix 'TEST '.",
+  "seed_data_creation": "Created ~6 TEST residents (SellerCart/BuyerCart/OtherShop x2 runs) in Gandaria Utara, 2 TEST merchants + 3 products each run, several TEST orders. Cleaned up all orphans directly in Mongo (deleted TEST merchants/products, TEST profiles, orphan users, residencies, notifications, orders). Mongo now has 0 TEST merchants/products.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression: `set -a && . /app/backend/.env && set +a && cd /app/backend && pytest tests/ -v`. New feature tests live in test_cart_and_pending.py. UI public URL https://neighborhood-umkm.preview.emergentagent.com, login via [data-testid=login-identifier-input] / [data-testid=login-password-input] / [data-testid=auth-login-submit-button]. For cart UI, mobile viewport 390x844. CartBar's cart-clear button may need JS click (scrollIntoView+click()) due to short viewport. Users collection uses ObjectId `_id`; social_profiles.user_id stores the stringified ObjectId. Cleanup script: delete TEST-prefixed social_profiles+merchants first, then delete orphan users via c.users.delete_many({_id: {$in: [ObjectId(x) for x in orphans]}}).",
+  "rca of the issue": "No bugs reproduced; only a LOW-priority UX nit around cart sheet footer visibility on short viewports."
+}

@@ -54,14 +54,14 @@ export function CartBar() {
         <span className="font-extrabold" data-testid="cart-bar-total">{rupiah(total)}</span>
       </button>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="mx-auto flex max-h-[85vh] max-w-2xl flex-col rounded-t-2xl" data-testid="cart-sheet">
+        <SheetContent side="bottom" className="mx-auto flex max-h-[85dvh] max-w-2xl flex-col overflow-y-auto rounded-t-2xl" data-testid="cart-sheet">
           <SheetHeader className="text-left">
             <SheetTitle>Keranjang</SheetTitle>
             <SheetDescription className="flex items-center gap-1"><Store className="h-3.5 w-3.5" /> {cart.merchant_name}</SheetDescription>
           </SheetHeader>
-          <div className="flex-1 space-y-3 overflow-y-auto py-3">{cart.items.map((i) => <CartLine key={i.product_id} i={i} setQty={setQty} />)}</div>
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto py-3">{cart.items.map((i) => <CartLine key={i.product_id} i={i} setQty={setQty} />)}</div>
           <Textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder="Catatan untuk penjual (mis. waktu ambil, alamat antar)" className="rounded-xl" data-testid="cart-note-input" />
-          <div className="flex items-center justify-between gap-3 pt-3">
+          <div className="sticky bottom-0 -mx-6 flex items-center justify-between gap-3 bg-background px-6 pt-3 pb-1">
             <div><p className="text-xs text-slate-400">Total ({count} barang)</p><p className="text-lg font-extrabold" data-testid="cart-total">{rupiah(total)}</p></div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={clear} className="rounded-full" data-testid="cart-clear">Kosongkan</Button>

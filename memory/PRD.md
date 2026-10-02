@@ -34,6 +34,11 @@ Region-scoped RBAC enforced server-side; NIK/KK never plaintext; Bahasa Indonesi
 - Order requests: product dialog (from product grid or merchant detail) with qty + note → POST /api/marketplace/orders (server-priced); /app/pesanan with "Pesanan Saya"/"Pesanan Masuk"; seller accept/reject/complete, buyer cancel; notifications both ways; chat shortcut. No payment (settled directly).
 - Tests: backend/tests/test_orders_and_feed_scope.py 34/34, regression 59/59.
 
+### 2026-10-02 (c)
+- Multi-item cart (per user, per browser, one shop, max 20 products): add from product dialog, floating cart bar, cart sheet with qty/remove/note → single multi-item order. "Pesan Sekarang" keeps direct single-item order.
+- Seller badge: GET /api/marketplace/orders/pending-count; red badge on bottom-nav Marketplace tab (8s polling) + "Pesanan" button.
+- Tests: test_cart_and_pending.py 15/15, regression 34/34.
+
 ## Backlog
 - P0 (resolved 2026-10-02): Feed RT scoping.
 - P0: Rewrite git history on GitHub to purge old password (owner action); set new secrets in production.
