@@ -36,7 +36,10 @@ function PostCard({ post, onLike }) {
       <div className="flex items-center gap-2.5">
         <Avatar className="h-9 w-9"><AvatarFallback className="bg-sky-100 text-sm font-bold text-sky-700">{(post.author_name || "W")[0]}</AvatarFallback></Avatar>
         <div><p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{post.author_name || "Warga"}</p><p className="text-xs text-slate-400">{fmtDateTime(post.created_at)}</p></div>
-        <span className="ml-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 dark:bg-slate-800">{post.category}</span>
+        <span className="ml-auto flex flex-col items-end gap-1">
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 dark:bg-slate-800">{post.category}</span>
+          {post.rt_name && <span className="text-[10px] text-slate-400" data-testid="feed-post-rt">{post.rt_name}</span>}
+        </span>
       </div>
       {post.text && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">{post.text}</p>}
       {post.reel && <SharedReel reel={post.reel} />}
@@ -57,7 +60,8 @@ export default function Feed() {
   const [text, setText] = useState("");
   const [newCat, setNewCat] = useState("Umum");
   const [posting, setPosting] = useState(false);
-  const { data, loading, error, reload, setData } = useApi("/social/feed", [cat], { params: cat !== "Semua" ? { category: cat } : {} });
+  const [scope, setScope] = useState("village");
+  const { data, loading, error, reload, setData } = useApi("/social/feed", [cat, scope], { params: { scope, ...(cat !== "Semua" ? { category: cat } : {}) } });
 
   const submit = async () => {
     if (!text.trim()) return;
@@ -76,7 +80,13 @@ export default function Feed() {
 
   return (
     <div>
-      <PageHeader title="Feed Warga" subtitle="Kabar dan diskusi lingkungan Anda" />
+      <PageHeader title="Feed Warga" subtitle="Kabar dan diskusi lingkungan Anda"
+        action={<div className="flex rounded-full bg-slate-100 p-1 dark:bg-slate-800" data-testid="feed-scope">
+          {[["village", "Kelurahan"], ["rt", "RT Saya"]].map(([v, l]) => (
+            <button key={v} onClick={() => setScope(v)} data-testid={`feed-scope-${v}`}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${scope === v ? "bg-white text-sky-700 shadow-sm dark:bg-slate-900 dark:text-sky-300" : "text-slate-500"}`}>{l}</button>
+          ))}
+        </div>} />
       {/* composer */}
       <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <Textarea data-testid="feed-post-create-input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Bagikan sesuatu dengan warga..." className="resize-none rounded-xl border-none bg-slate-50 focus-visible:ring-1 dark:bg-slate-800" />
@@ -101,7 +111,7 @@ export default function Feed() {
 
       {loading ? <Loading /> : error ? <EmptyState title="Gagal memuat" description={error} /> :
         data?.length ? <div className="space-y-3">{data.map((p) => <PostCard key={p.id} post={p} onLike={like} />)}</div> :
-        <EmptyState title="Belum ada postingan" description="Jadilah yang pertama berbagi kabar di lingkungan Anda." />}
+        <EmptyState title="Belum ada postingan" description={scope === "rt" ? "Belum ada kabar dari RT Anda. Jadilah yang pertama berbagi." : "Belum ada kabar di kelurahan Anda. Jadilah yang pertama berbagi."} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ export const STATUS_LABELS = {
   SUBMITTED: "Terkirim", ASSIGNED: "Ditugaskan", IN_PROGRESS: "Sedang Diproses", RESOLVED: "Selesai",
   PAID: "Lunas", UNPAID: "Belum Bayar", UNCLAIMED: "Belum Bergabung",
   RESOLVED_REPLACED: "Pengurus Diganti", RESOLVED_KEPT: "Dipertahankan", NEED_EVIDENCE: "Perlu Bukti",
+  ACCEPTED: "Diterima", COMPLETED: "Selesai", CANCELLED: "Dibatalkan",
 };
 
 export const STATUS_TONE = {
@@ -12,6 +13,7 @@ export const STATUS_TONE = {
   PENDING: "amber", PENDING_REVIEW: "amber", PENDING_RT_VERIFICATION: "amber", SUBMITTED: "sky",
   ASSIGNED: "sky", IN_PROGRESS: "cyan", NEED_REVISION: "amber", NEED_EVIDENCE: "amber", UNPAID: "rose",
   REJECTED: "rose", CONFLICT: "rose", SUSPENDED: "rose", DRAFT: "slate", ENDED: "slate", UNCLAIMED: "slate",
+  ACCEPTED: "sky", COMPLETED: "emerald", CANCELLED: "slate",
 };
 
 export const ROLE_LABELS = {

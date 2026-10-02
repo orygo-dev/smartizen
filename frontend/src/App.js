@@ -27,6 +27,7 @@ import Marketplace from "@/pages/citizen/Marketplace";
 import MyStore from "@/pages/citizen/MyStore";
 import VerifyLetter from "@/pages/VerifyLetter";
 import Reels from "@/pages/citizen/Reels";
+import Orders from "@/pages/citizen/Orders";
 import Stories from "@/pages/citizen/Stories";
 import UmkmFeatured from "@/pages/dashboard/UmkmFeatured";
 
@@ -81,6 +82,7 @@ function App() {
               <Route path="toko" element={<MyStore />} />
               <Route path="reels" element={<Reels />} />
               <Route path="stories" element={<Stories />} />
+              <Route path="pesanan" element={<Orders />} />
               <Route path="profil" element={<Profile />} />
               <Route path="surat" element={<Letters />} />
               <Route path="pengaduan" element={<Complaints />} />

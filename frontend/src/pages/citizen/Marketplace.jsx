@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Store, Search, MessageCircle, Phone, Bookmark, BookmarkCheck, ArrowLeft, Clock, MapPin, Flag, Loader2, Store as StoreIcon, PackageOpen } from "lucide-react";
+import { Store, Search, MessageCircle, Phone, Bookmark, BookmarkCheck, ArrowLeft, Clock, MapPin, Flag, Loader2, Store as StoreIcon, PackageOpen, Receipt } from "lucide-react";
+import { ProductDialog } from "@/components/sz/ProductDialog";
 import { api, formatApiError, mediaUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { PageHeader } from "@/components/sz/PageHeader";
@@ -19,19 +20,21 @@ const SCOPES = [
   { v: "all", label: "Semua" },
 ];
 
-function ProductCard({ p, onSave, onOpenMerchant }) {
+function ProductCard({ p, onSave, onOpenMerchant, onOpen }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900" data-testid={`product-${p.id}`}>
       <div className="relative aspect-square w-full bg-slate-100 dark:bg-slate-800">
+        <button onClick={() => onOpen(p)} className="h-full w-full" data-testid={`product-open-${p.id}`} aria-label={`Lihat ${p.name}`}>
         {p.image_url ? <img src={mediaUrl(p.image_url)} alt={p.name} className="h-full w-full object-cover" />
           : <div className="grid h-full w-full place-items-center text-slate-300"><PackageOpen className="h-10 w-10" /></div>}
+        </button>
         <button onClick={() => onSave(p)} data-testid={`product-save-${p.id}`} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-slate-600 shadow dark:bg-slate-900/90">
           {p.saved ? <BookmarkCheck className="h-4 w-4 text-[#0060F0]" /> : <Bookmark className="h-4 w-4" />}
         </button>
         {!p.available && <span className="absolute left-2 top-2 rounded-full bg-slate-900/70 px-2 py-0.5 text-[10px] font-semibold text-white">Habis</span>}
       </div>
       <div className="p-2.5">
-        <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{p.name}</p>
+        <button onClick={() => onOpen(p)} className="block w-full truncate text-left text-sm font-semibold text-slate-800 dark:text-slate-100">{p.name}</button>
         <p className="mt-0.5 font-bold text-[#0060F0]">{rupiah(p.price)}</p>
         <button onClick={() => onOpenMerchant(p.merchant_id)} className="mt-1 flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
           <StoreIcon className="h-3 w-3" /> <span className="truncate">{p.merchant_name}</span>
@@ -46,6 +49,7 @@ function MerchantDetail({ mid, onBack }) {
   const navigate = useNavigate();
   const [m, setM] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -96,15 +100,16 @@ function MerchantDetail({ mid, onBack }) {
       {m.products?.length ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {m.products.map((p) => (
-            <div key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <button key={p.id} onClick={() => setProduct({ ...p, merchant_name: m.name })} data-testid={`merchant-product-${p.id}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="aspect-square w-full bg-slate-100 dark:bg-slate-800">
                 {p.image_url ? <img src={mediaUrl(p.image_url)} alt={p.name} className="h-full w-full object-cover" /> : <div className="grid h-full w-full place-items-center text-slate-300"><PackageOpen className="h-8 w-8" /></div>}
               </div>
               <div className="p-2.5"><p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{p.name}</p><p className="font-bold text-[#0060F0]">{rupiah(p.price)}</p></div>
-            </div>
+            </button>
           ))}
         </div>
       ) : <EmptyState icon={PackageOpen} title="Belum ada produk" description="Toko ini belum menambahkan produk." />}
+      <ProductDialog product={product} merchantName={m.name} ownerId={m.owner_user_id} onClose={() => setProduct(null)} />
     </div>
   );
 }
@@ -118,6 +123,7 @@ export default function Marketplace() {
   const [cats, setCats] = useState(["Semua"]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState(null);
   const [params, setParams] = useSearchParams();
   const selected = params.get("toko");
   const setSelected = (id) => setParams(id ? { toko: id } : {});
@@ -146,7 +152,10 @@ export default function Marketplace() {
   return (
     <div>
       <PageHeader title="Marketplace" subtitle="UMKM dan produk lokal di sekitar Anda"
-        action={<Button onClick={() => navigate("/app/toko")} variant="outline" data-testid="my-store-button" className="rounded-full"><Store className="mr-1.5 h-4 w-4" /> Toko Saya</Button>} />
+        action={<div className="flex gap-2">
+          <Button onClick={() => navigate("/app/pesanan")} variant="outline" data-testid="marketplace-orders-button" className="rounded-full"><Receipt className="mr-1.5 h-4 w-4" /> Pesanan</Button>
+          <Button onClick={() => navigate("/app/toko")} variant="outline" data-testid="my-store-button" className="rounded-full"><Store className="mr-1.5 h-4 w-4" /> Toko Saya</Button>
+        </div>} />
 
       <div className="mb-3 flex gap-2">
         <div className="relative flex-1">
@@ -180,7 +189,7 @@ export default function Marketplace() {
         <EmptyState icon={Store} title="Belum ada yang ditampilkan" description="Belum ada UMKM atau produk pada cakupan ini. Coba ubah cakupan wilayah, atau jadilah yang pertama membuka toko." actionLabel="Buka Toko Saya" onAction={() => navigate("/app/toko")} />
       ) : tab === "produk" ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {items.map((p) => <ProductCard key={p.id} p={p} onSave={toggleSave} onOpenMerchant={setSelected} />)}
+          {items.map((p) => <ProductCard key={p.id} p={p} onSave={toggleSave} onOpenMerchant={setSelected} onOpen={setProduct} />)}
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -198,6 +207,7 @@ export default function Marketplace() {
           ))}
         </div>
       )}
+      <ProductDialog product={product} onClose={() => setProduct(null)} />
     </div>
   );
 }

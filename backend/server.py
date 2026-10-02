@@ -11,7 +11,7 @@ from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 from core.db import client  # noqa: E402
 from seed import run_seed  # noqa: E402
 from routers import auth, regions, rt, residents, civic, social, dashboard  # noqa: E402
-from routers import households, stories, chat, letters_pdf, uploads, marketplace, reels, umkm  # noqa: E402
+from routers import households, stories, chat, letters_pdf, uploads, marketplace, reels, umkm, orders  # noqa: E402
 from core.storage import storage  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -50,6 +50,7 @@ app.include_router(stories.router)
 app.include_router(chat.router)
 app.include_router(letters_pdf.router)
 app.include_router(uploads.router)
+app.include_router(orders.router)
 app.include_router(marketplace.router)
 app.include_router(reels.router)
 app.include_router(umkm.router)
